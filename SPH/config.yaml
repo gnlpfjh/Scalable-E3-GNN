@@ -1,0 +1,96 @@
+system :
+    mode : "si" # "si" : run SPH simulations, "ad" : analyze data, "tr" : train ML model, "dr" : download ML results, "ar" : analyze ML results, "am" : analyze ML model
+
+    # supported GPU architecture options (only required for data generation):
+    # "sm_20": GTX570, Quadro4000
+    # "sm_35": GTX Titan, Kepler K40
+    # "sm_37": Kepler K80
+    # "sm_52": GTX970, GTX TitanX
+    # "sm_50": GTX750 Ti
+    # "sm_30": GTX680 and GTX770
+    # "sm_61": GTX1080, GTX1070, GTX1060, GTX1050, GTX1030, Titan Xp, Tesla P40, Tesla P4
+    wsl:
+        path_project : "path/to/project/dir" # project path
+        gpu_arch : "sm_61" # GTX1060
+    server:
+        path_project : "path/to/project/dir" # project path
+        gpu_arch : "sm_61" # GTX1080
+    GPU_name : GTX1080Ti
+
+SPH :
+    system :
+        wsl:
+            path_Astro_SPH : "path/to/project/dir/SPH/dataset/" # data path
+        server:
+            path_Astro_SPH : "path/to/scratch/dir/SPH/dataset/" # data path
+         
+    sim :
+        setup_type : "random" # "random": run many random setups, "custom": run one specific setup
+        overwrite: True
+        
+        random_setup :  # official parameter space
+            cleanup : false
+            subsampling : 10 # TODO aus! frames that are kept are subsampled to reduce memory footprint
+            n_simulations : 40 # number of simulations to perform for each program execution
+            checkpoint : 0 # specify where to continue pipeline
+            checkpoint_ID : "r125347071883677" # for debugging
+            seed : 73
+            t_sim_fact_min : 40. # t_sim = round_up(collision_timescale * (t_sim_fact + ini_dist_fact))
+            t_sim_fact_max : 45.
+            ini_dist_fact_min : 3. # objects are placed at ini_dist_fact*sum(radii) distance to each other (default: 5.)
+            ini_dist_fact_max : 5.
+            n_frames : 60 # number of SPH output frames per hour
+            frame_interval : -1 # TODO? use every frame_interval SPH output frames for in-depth analysis
+            N_min : 20000 # min number of SPH particles (C. Burger Diss: N=10k, mat_fraction_min=0.1 --> water shell thickness ~2 SPH particles)
+            N_max : 50000 # max number of SPH particles
+            N : [1000, 10000, 100000] # same simulations for # particles respectively. Ignores min, max
+            M_tot_min : 2.9861e+24 # 0.25 m_earth #1.8786e+21 # [kg], minimum total mass = 2 * m_ceres
+            M_tot_max : 1.19444e+25 # [kg], maximum total mass = 2 * m_earth
+            gamma_min : 0.25 #0.05 # minimum mass ratio projectile / target
+            gamma_max : 1. # maximum mass ratio projectile / target
+            iron_fraction_min : 0.1 #0.01
+            iron_fraction_max : 0.25
+            water_fraction_min : 0.
+            water_fraction_max : 0.25
+            vel_vesc_min : 1. # minimum impact velocity [v_esc]
+            vel_vesc_max : 8. # maximum impact velocity [v_esc]
+            vel_vesc:      [6.,  2.4, 1.9, 1.7, 1.6, 5.,  1.1, 1.5, 2.2, 2.,  4.5, 5.5, 7.,  4.,  6.,  1.6, 1.05] # discrete velocities unsed in this order (not random) - pairs (vel, angle)
+            impact_angle : [32., 10., 3.,  24., 36., 75., 60., 25., 65., 50., 45., 55., 80., 85., 15., 26., 87.] # same len as vel_vesc - pairs (vel, angle)
+            impact_angle_min : 0. # minimum impact angle [deg]
+            impact_angle_max : 90. # maximum impact angle [deg] (0: head-on, 90: grazing)
+            rot_limit : 0.2 # maximum rotation period [T_crit]
+            n_sph_min : 5 # minimum number of SPH particles in a "large" fragment
+        
+        custom_setup :
+            cleanup : false
+            subsampling : 1 # frames that are kept are subsampled to reduce memory footprint
+            n_simulations : 1
+            checkpoint : 0 # specify where to continue pipeline
+            checkpoint_ID : "c751716852135381"
+            t_sim_fact : 46.353905697556435 # t_sim = round_up(collision_timescale * (t_sim_fact + ini_dist_fact))
+            ini_dist_fact : 5.724389609341498 # objects are placed at ini_dist_fact*sum(radii) distance to each other (default: 5.)
+            n_frames : 100 # number of SPH output frames per hour
+            frame_interval : 1 # use every frame_interval SPH output frames for in-depth analysis
+            N : 46063 # number of SPH particles
+            M_tot : 4.69042151982061e+24 # total mass [kg]
+            M_proj : 4.270318941988767e+23
+            n_mat : 3
+            core_mat : "Iron"
+            mantle_mat : "BasaltNakamura"
+            shell_mat : "Water"
+            f_m_key : "iron_basalt_water"
+            mantle_proj : 0.651819507941678
+            shell_proj : 0.230434416535625
+            mantle_targ : 0.9732447416577706
+            shell_targ : 0.
+            proj_rot_axis_x : -73589.20039119 # rotation axes
+            proj_rot_axis_y : 196060.43410405
+            proj_rot_axis_z : 333162.52599519
+            targ_rot_axis_x : -26406.35085322
+            targ_rot_axis_y : -25264.02199751
+            targ_rot_axis_z : -35302.93138828
+            proj_rot_period : 393512.81168822985
+            targ_rot_period : 50812.0373285658
+            vel_vesc_touching_ball : 1.3362676465300636 # impact velocity [v_esc]
+            impact_angle_touching_ball : 42.88870918586685 # impact angle [deg]
+            n_sph_min : 5 # minimum number of SPH particles in a "large" fragment

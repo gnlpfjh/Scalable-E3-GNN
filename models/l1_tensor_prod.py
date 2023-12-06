@@ -8,7 +8,7 @@ from math import sqrt
 class L1TensorProduct(Module):
     def __init__(self, in1_irreps: Irreps, out_irreps=None,
                  irrep_normalization="component", path_normalization="element",
-                 in1_var: list[float]=None, in2_var: list[float]=None, out_var: list[float]=None) -> None: # , in2_irreps=None
+                 in1_var: list[float]=None, in2_var: list[float]=None, out_var: list[float]=None) -> None:
         super().__init__()
         assert in1_irreps.lmax == 1
         if out_irreps is not None: assert out_irreps.lmax == 1
